@@ -15,9 +15,9 @@ close all
 clear all
 clc
 
-NUM_IMAGES = 6;
+NUM_IMAGES = 18;
 IMG_PIX_WIDTH = 2048;
-IMG_PIX_HEIGHT = 2048;
+IMG_PIX_HEIGHT = 2448;
 IMG_PIX_DEPTH = 3;
 
 %% Importing Image
@@ -30,23 +30,30 @@ Img_Divided = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH, NUM_IMAGES); %
 %Read in all images into arrays
 for i = 1:NUM_IMAGES
     %Use sprintf() and %d to quickly iterate through file names and read them in
-    Img_Ref_Speckle(:,:,:,i) = imread(sprintf("Referance Speckle (30us, 1.%dOD, pol)_90°.tiff",i-1)); %Referance Speckle
-    Img_Sample_Speckle(:,:,:,i) = imread(sprintf("Sample-Distorted Speckle (30us, 1.%dOD, pol)_90°.tiff",i-1)); %Sample-Distorted Speckle
+    Img_Ref_Speckle(:,:,:,i) = imread(sprintf("Referance Speckle (33us, 1.0OD, pol, %ddegdiff)_90°.tiff",20*(i-1))); %Referance Speckle
+    Img_Sample_Speckle(:,:,:,i) = imread(sprintf("Sample-Distorted Speckle (33us, 1.0OD, pol, %ddegdiff)_90°.tiff",20*(i-1))); %Sample-Distorted Speckle
 end
 
 %% Processing
+%Combine images with varying speckle patterns
+Img_Ref_Combined = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH, NUM_IMAGES);
+Img_Sample_Combined = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH, NUM_IMAGES);
+for t = 1:NUM_IMAGES
+    Img_Ref_Combined = Img_Ref_Combined + Img_Ref_Speckle(:,:,:,t);
+    Img_Sample_Combined = Img_Sample_Combined + Img_Sample_Speckle(:,:,:,t);
+end
+Img_Ref_Combined = Img_Ref_Combined / NUM_IMAGES;
+Img_Sample_Combined = Img_Sample_Combined / NUM_IMAGES;
 
 % Divide sample-distorted img by referance img
-for j = 1:NUM_IMAGES
-    Img_Divided(:,:,:,j) = Img_Ref_Speckle(:,:,:,j) ./ Img_Sample_Speckle(:,:,:,j);
-end
+Img_Divided = Img_Ref_Combined ./ Img_Sample_Combined;
 
 %% Choosing Best Processed Image (found after looking at output images)
 Best_Output_Img = Img_Divided(:,:,:,1);
 
 %% Initial Plots/Figure Calculation
 % Original Image Phase - not needed
-Img_fft = fftshift(fft(Best_Output_Img)); %Take Fourier Transform of image - FT of Real value produces a complex number at each frequency (each Real part = amplitude of number, each imaginary part contains the phase information)
+Img_fft = fft2(fftshift(Img_Sample_Speckle(:,:,:,1))); %Take Fourier Transform of image - FT of Real value produces a complex number at each frequency (each Real part = amplitude of number, each imaginary part contains the phase information)
                                           % fftshift to shift it so that low freqs are in the center      
 Img_phases = angle(Img_fft); %angle() extracts the phase of a complex number - extracts all the phases of each cell in the image array
 
@@ -63,8 +70,8 @@ Img_phases = angle(Img_fft); %angle() extracts the phase of a complex number - e
 % imshow(Img_squeezed(:,:,3), [], Colormap=hot);
 % colormap(hot);
 
-figure
-imagesc(Img_phases);
+% figure
+% imagesc(Img_phases);
 
 %All output images with varying OD for the ND filters
 % for k = 1:NUM_IMAGES
@@ -73,5 +80,8 @@ imagesc(Img_phases);
 % end
 
 figure
-title("Processed Image (BEST)");
-imshow(Best_Output_Img);
+imshow(Img_Divided(:,:,:,1));
+
+% figure
+% title("Processed Image (BEST)");
+% imshow(Best_Output_Img);
