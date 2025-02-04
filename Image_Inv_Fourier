@@ -1,0 +1,58 @@
+%% Description
+% MATLAB Script to complete inverse Fourier Transform on image (to recover
+% original image after passing through lens)
+
+% Written by: Uri Kaufman 02/02/2025
+
+%% Notes
+
+
+%% Constants
+close all
+clear all
+clc
+
+IMG_PIX_WIDTH = 2048;
+IMG_PIX_HEIGHT = 2448;
+IMG_PIX_DEPTH = 3;
+IMG_CROP_LENGTH = 700; %Amount of pixels to crop image by (from each direction in length and width - e.g. a value of 700 will cut 700 from the top, bottom, left and right of the image)
+
+%% Importing Image
+
+%Initiate Img arrays
+Img_Sample = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH);
+Img_Inv_Fourier = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT); %Inverse Fourier of sample image
+
+%Read in image
+Img_Sample = imread("F Sample (NO REF BEAM NO SPECKLE)_0°_90°.jpg");
+Img_Sample_One_Plane = Img_Sample(:,:,1);
+
+%% Processing
+%Crop Image by IMG_CROP_LENGTH
+%Img_Sample_Cropped = Img_Sample_One_Plane(IMG_CROP_LENGTH:(IMG_PIX_WIDTH - IMG_CROP_LENGTH), IMG_CROP_LENGTH:(IMG_PIX_HEIGHT - IMG_CROP_LENGTH));
+
+%Take inv Fourier transform
+Img_Inv_Fourier = ifft2(ifftshift(Img_Sample_One_Plane));
+
+%Take log of magnitude of inv Fourier image (for graphing)
+Img_log = log(abs(Img_Inv_Fourier));
+
+%Take only bottom right quadrant
+Img_fourth_quadrant = Img_log(IMG_PIX_WIDTH/2:IMG_PIX_WIDTH, IMG_PIX_HEIGHT/2:IMG_PIX_HEIGHT);
+
+%% Writing New Output Image
+%imwrite(...);
+
+
+%% Displaying Figures
+subplot(2, 2, 1);
+imshow(Img_Sample);
+title("Original Image");
+
+subplot(2, 2, 2);
+imshow(Img_log, []);
+title("Inv Fourier Image (Log scaled)")
+
+subplot(2, 2, 3);
+imshow(Img_fourth_quadrant, []);
+title("Inv Fourier Image (Log scaled) - 4th Quadrant")
