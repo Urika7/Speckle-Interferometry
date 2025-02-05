@@ -9,9 +9,10 @@
     % F Sample Exp. (30us, 2.7OD)_90°.jpg
     % New2 X Sample (30us, 3.5OD)_90°.tiff
     % X Sample (30us, 1.5OD)_90°.jpg
+    % New2 X Sample (30us, 2.5OD)_90°.tiff
 
-%Best X Outcome from:
-    %
+%Current Best X Outcome from:
+    % New2 X Sample (30us, 2.5OD)_90°.tiff
 
 
 
@@ -35,7 +36,7 @@ Img_Sample = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH);
 Img_Inv_Fourier = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT); %Inverse Fourier of sample image
 
 %Read in image
-Img_Sample = imread("Inter with Lens #2 (33us, 3.5OD)_90°.tiff"); 
+Img_Sample = imread("New2 X Sample (30us, 2.5OD)_90°.tiff"); 
 Img_Sample_One_Plane = Img_Sample(:,:,1);
 
 %Read in image array
@@ -49,13 +50,13 @@ Img_Sample_One_Plane = Img_Sample(:,:,1);
 %Img_Sample_Cropped = Img_Sample_One_Plane(IMG_CROP_LENGTH:(IMG_PIX_WIDTH - IMG_CROP_LENGTH), IMG_CROP_LENGTH:(IMG_PIX_HEIGHT - IMG_CROP_LENGTH));
 
 %Take inv Fourier transform
-Img_Inv_Fourier = ifft2(ifftshift(Img_Sample_One_Plane));
+Img_Inv_Fourier = ifftshift(ifft2(Img_Sample_One_Plane));
 
 %Take log of magnitude of inv Fourier image (for graphing)
 Img_log = log(abs(Img_Inv_Fourier));
 
-%Take only bottom right quadrant
-Img_fourth_quadrant = Img_log(IMG_PIX_WIDTH/2:IMG_PIX_WIDTH, IMG_PIX_HEIGHT/2:IMG_PIX_HEIGHT);
+%Take only bottom right quadrant - needed only if you don't ifftshift()
+%Img_fourth_quadrant = Img_log(IMG_PIX_WIDTH/2:IMG_PIX_WIDTH, IMG_PIX_HEIGHT/2:IMG_PIX_HEIGHT);
 
 %% Writing New Output Image
 %imwrite(...);
@@ -71,10 +72,10 @@ imshow(Img_log, []);
 title("Inv Fourier Image (Log scaled)")
 
 subplot(2, 2, 3);
-imshow(Img_fourth_quadrant, []);
-title("Inv Fourier Image (Log scaled) - 4th Quadrant")
+imshow(Img_Sample, [], Colormap=hot);
+title("Original Image (Fourier Transformed) Heatmap")
 
 subplot(2, 2, 4);
-Img_squeezed = squeeze(Img_fourth_quadrant);
-imshow(Img_squeezed, [], Colormap=hot);
-title("Heatmap of 4th Quadrant");
+Img_squeezed = squeeze(Img_log);
+imshow(Img_squeezed, [], Colormap=parula);
+title("Heatmap of Inv Fourier Image (Log Scaled)");
