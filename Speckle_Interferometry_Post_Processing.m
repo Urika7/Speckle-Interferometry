@@ -33,8 +33,8 @@ Img_Divided = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH); %Sample img /
 Img_Inv_Fourier = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT); %Inverse Fourier of an image (for post processing)
 
 %Read in all images
-Img_Sample = imread("X Sample Distorted Img (500us, 2.5OD)_90°.tiff");
-Img_Ref = imread("Ref Img (500us, 2.5OD)_90°.tiff");
+Img_Sample = imread("X-Sample Distorted Img (No Speckle) (179895us, 1.5OD)_90°.jpg");
+Img_Ref = imread("Ref Img (No Speckle) (179895us, 1.5OD)_90°.jpg");
 
 %Extract one plane of images
 Img_Sample_One_Plane = Img_Sample(:,:,1);
@@ -114,7 +114,12 @@ subplot(2, 2, 3);
 imshow(rgb2gray(Img_Sample), [], Colormap=hot);
 title("Original Image (Fourier Transformed) Heatmap")
 
+% subplot(2, 2, 4);
+% Img_squeezed = squeeze(Img_log);
+% imshow(Img_squeezed, [], Colormap=parula);
+% title("Heatmap of Inv Fourier Image (Log Scaled)");
+
 subplot(2, 2, 4);
 Img_squeezed = squeeze(Img_log);
-imshow(Img_squeezed, [], Colormap=parula);
+imshow(Img_squeezed, [], Colormap=turbo);
 title("Heatmap of Inv Fourier Image (Log Scaled)");
