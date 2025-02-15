@@ -24,10 +24,11 @@ clear all
 clc
 
 IMG_PIX_WIDTH = 2048;
-IMG_PIX_HEIGHT = 2448;
+IMG_PIX_HEIGHT = 2048;
 IMG_PIX_DEPTH = 3;
 IMG_CROP_LENGTH = 700; %Amount of pixels to crop image by (from each direction in length and width - e.g. a value of 700 will cut 700 from the top, bottom, left and right of the image)
-NUM_IMAGES = 10;
+CROP_WIDTH = 300;
+CROP_HEIGHT = 300;
 
 %% Importing Image
 
@@ -36,8 +37,10 @@ Img_Sample = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH);
 Img_Inv_Fourier = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT); %Inverse Fourier of sample image
 
 %Read in image
-Img_Sample = imread("New2 X Sample (30us, 2.5OD)_90°.tiff"); 
+Img_Sample = imread("CU Sample 2 (500us, 3.0OD)_90°.tiff"); 
 Img_Sample_One_Plane = Img_Sample(:,:,1);
+Img_Orig_Sample = imread("CU Sample Image (Expected Output)_90°.tiff"); %Original image (no fourier transform through lens). This is the expected output (concatanated slightly)
+Img_Orig_One_Plane = Img_Orig_Sample(:,:,1);
 
 %Read in image array
 % for i = 1:NUM_IMAGES
@@ -46,36 +49,59 @@ Img_Sample_One_Plane = Img_Sample(:,:,1);
 % end
 
 %% Processing
-%Crop Image by IMG_CROP_LENGTH
-%Img_Sample_Cropped = Img_Sample_One_Plane(IMG_CROP_LENGTH:(IMG_PIX_WIDTH - IMG_CROP_LENGTH), IMG_CROP_LENGTH:(IMG_PIX_HEIGHT - IMG_CROP_LENGTH));
+%%%%Extract only center point of image (crop out black padding)
+%Uses imcrop function in matlab - to redefine crop extraction area
+%uncomment the following line:
+% [J,rect] = imcrop(Img_Sample_One_Plane)
+%The above line opens a figure were you can select the crop area (double
+%click cropped area to confirm). rect saves the coordinates of the cropped
+%rectangle - save new value of rect and re-comment the line.
+rect = [5.125100000000000e+02,8.595100000000000e+02,7.919800000000000e+02,7.289800000000000e+02]; %Found using imcrop function
+Img_Sample_Cropped = imcrop(Img_Sample_One_Plane, rect);
 
-%Take inv Fourier transform
-Img_Inv_Fourier = ifftshift(ifft2(Img_Sample_One_Plane));
+%Crop out DC
+% j = 1;
+% k = 1;
+% for j = (IMG_PIX_WIDTH/2 - CROP_WIDTH/2):(IMG_PIX_WIDTH/2 + CROP_WIDTH/2)
+%     for k = (IMG_PIX_HEIGHT/2 - CROP_HEIGHT/2):(IMG_PIX_HEIGHT/2 + CROP_HEIGHT)
+%         Img_Sample_One_Plane(k,j) = 0;
+%     end
+% end
+
+%Take inv Fourier transform of cropped image and shift in spacial plane
+Img_Inv_Fourier = ifftshift(ifft2(Img_Sample_Cropped));
 
 %Take log of magnitude of inv Fourier image (for graphing)
 Img_log = log(abs(Img_Inv_Fourier));
-
-%Take only bottom right quadrant - needed only if you don't ifftshift()
-%Img_fourth_quadrant = Img_log(IMG_PIX_WIDTH/2:IMG_PIX_WIDTH, IMG_PIX_HEIGHT/2:IMG_PIX_HEIGHT);
 
 %% Writing New Output Image
 %imwrite(...);
 
 
 %% Displaying Figures
+% subplot(2, 2, 1);
+% imshow(Img_Sample);
+% title("Original Image (Fourier Transformed)");
+
+% subplot(2, 2, 1);
+% imshow(Img_Orig_One_Plane);
+% title("Original Sample Image (Expected Output)");
+
 subplot(2, 2, 1);
-imshow(Img_Sample);
-title("Original Image (Fourier Transformed)");
+imshow(Img_Orig_One_Plane, [], Colormap=hot);
+title("Original Sample Image (Expected Output)");
 
 subplot(2, 2, 2);
 imshow(Img_log, []);
 title("Inv Fourier Image (Log scaled)")
 
+
 subplot(2, 2, 3);
-imshow(Img_Sample, [], Colormap=hot);
+imshow(rgb2gray(Img_Sample), [], Colormap=hot);
 title("Original Image (Fourier Transformed) Heatmap")
 
 subplot(2, 2, 4);
 Img_squeezed = squeeze(Img_log);
-imshow(Img_squeezed, [], Colormap=parula);
+imshow(Img_squeezed, [], Colormap=turbo);
 title("Heatmap of Inv Fourier Image (Log Scaled)");
+
