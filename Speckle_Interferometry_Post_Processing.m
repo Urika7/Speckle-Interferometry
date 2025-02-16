@@ -27,45 +27,37 @@ IMG_PIX_DEPTH = 3;
 %% Importing Image
 
 %Initiate Img arrays
-%Img_Ref = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH, NUM_IMAGES);
-Img_Sample = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH, NUM_IMAGES);
+Img_Ref = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH);
+Img_Sample = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH);
 Img_Divided = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT);
 Img_Inv_Fourier = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT); %Inverse Fourier of an image (for post processing)
 
 %Read in all images
-%Read in all images into arrays
-for i = 1:NUM_IMAGES
-    %Use sprintf() and %d to quickly iterate through file names and read them in
-    %Img_Ref_Speckle(:,:,:,i) = imread(sprintf("Referance Speckle (30us, 1.%dOD, pol)_90°.tiff",i-1)); %Referance Speckle
-    Img_Sample_Speckle(:,:,:,i) = imread(sprintf("CU Sample 3 w Speckle (600us, 0.0OD) (%ddeg)_90°.tiff",(i-1)*20)); %Sample-Distorted Speckle
-end
-% Img_Sample = imread("CU Sample 3 (Higher freq pattern) (600us, 0.5OD)_90°.tiff");
-% Img_Ref = imread("Ref Interference (Higher freq pattern) (600us, 0.5OD)_90°.tiff");
-Img_Ref = imread("Ref Interference (for Speckle) (High freq pattern) (600us, 0.5OD)_90°.tiff");
+Img_Sample = imread("CU Sample 3 (High freq pattern) (600us, 0.5OD)_90°.tiff");
+Img_Ref = imread("Ref Interference (High freq pattern) (600us, 0.5OD)_90°.tiff");
 Img_Orig = imread("CU Sample 3 (Expected Output)_90°.tiff");
 
 
 %Extract one plane of images
-% Img_Sample_One_Plane = Img_Sample(:,:,1);
-% Img_Ref_One_Plane = Img_Ref(:,:,1);
+Img_Sample_One_Plane = Img_Sample(:,:,1);
+Img_Ref_One_Plane = Img_Ref(:,:,1);
 
 
 
 %% Processing
 %Combine images with varying speckle patterns
-%Img_Ref_Combined = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH, NUM_IMAGES);
-Img_Sample_Combined = Img_Sample_Speckle(:,:,:,1);
-for t = 2:NUM_IMAGES
-    %Img_Ref_Combined = Img_Ref_Combined + Img_Ref_Speckle(:,:,:,t);
-    Img_Sample_Combined = Img_Sample_Combined + Img_Sample_Speckle(:,:,:,t);
-end
-%Img_Ref_Combined = Img_Ref_Combined / NUM_IMAGES;
-Img_Ref_Combined = Img_Ref;
-Img_Sample_Combined = Img_Sample_Combined / NUM_IMAGES;
+% Img_Ref_Combined = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH, NUM_IMAGES);
+% Img_Sample_Combined = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH, NUM_IMAGES);
+% for t = 1:NUM_IMAGES
+%     Img_Ref_Combined = Img_Ref_Combined + Img_Ref_Speckle(:,:,:,t);
+%     Img_Sample_Combined = Img_Sample_Combined + Img_Sample_Speckle(:,:,:,t);
+% end
+% Img_Ref_Combined = Img_Ref_Combined / NUM_IMAGES;
+% Img_Sample_Combined = Img_Sample_Combined / NUM_IMAGES;
 
 % Divide sample-distorted img by referance img
-Img_Divided = Img_Ref_Combined ./ Img_Sample_Combined;
-% Img_Divided = Img_Ref_One_Plane ./ Img_Sample_One_Plane;
+% Img_Divided = Img_Ref_Combined ./ Img_Sample_Combined;
+Img_Divided = Img_Ref_One_Plane ./ Img_Sample_One_Plane;
 
 %Take inv Fourier transform and shift in spacial plane
 % Img_Inv_Fourier = ifftshift(ifft2(Img_Divided));
@@ -113,9 +105,9 @@ Img_log = Img_Divided;
 % imshow(Best_Output_Img);
 
 %----------------------------------------
-% subplot(2, 2, 1);
-% imshow(Img_Sample);
-% title("Sample-Distorted Intererence Pattern");
+subplot(2, 2, 1);
+imshow(Img_Sample);
+title("Sample-Distorted Intererence Pattern");
 
 subplot(2, 2, 2);
 imshow(Img_log, []);
