@@ -14,6 +14,10 @@
 % (Img_Ref_One_Plane + Img_Sample_One_Plane);  gave some interesting
 % results
 
+%Decent Results from:
+% Img_Sample = imread("CU Lines (Med freq 2) (100us, 0.5OD)_90°.tiff");
+% Img_Ref = imread("Ref Interference (Med freq 2) (100us, 0.5OD)_90°.tiff");
+
 %% Constants
 close all
 clear all
@@ -33,9 +37,10 @@ Img_Divided = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT);
 Img_Inv_Fourier = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT); %Inverse Fourier of an image (for post processing)
 
 %Read in all images
-Img_Sample = imread("CU Sample 3 (High freq pattern) (600us, 0.5OD)_90°.tiff");
-Img_Ref = imread("Ref Interference (High freq pattern) (600us, 0.5OD)_90°.tiff");
-Img_Orig = imread("CU Sample 3 (Expected Output)_90°.tiff");
+Img_Sample = imread("CU Lines (High freq) (100us, 0.5OD)_90°.tiff");
+Img_Ref = imread("Ref Interference (High freq) (100us, 0.5OD)_90°.tiff");
+
+Img_Orig = imread("CU Lines Sample (Expected Output) (6E3us, 3.0OD)_90°.tiff");
 
 
 %Extract one plane of images
