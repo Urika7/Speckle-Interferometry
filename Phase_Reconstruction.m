@@ -1,6 +1,6 @@
 %% Description
-% MATLAB Script to post-process Phase-Shifting Interferometry
-% Phase Shifting Interferometry Steps (https://wp.optics.arizona.edu/jcwyant/wp-content/uploads/sites/13/2016/08/05-1-Direct_Phase_Measurement_Interferometry.pptx.pdf):
+% MATLAB Script to reconstruct phase of an image using phase shifting interferometry
+% Phase Shifting Interferometry Steps (https://spie.org/samples/PM252.pdf    pg192):
     % 1. Modulate phase by 2pi/3 (move mirror to shift fringe lines) (move mirror lambda/6 for 2pi/3 phase shift) 
     % 2. Record min 3 different phase IPs (Intensity pictures (I) at 0, 2pi/3, and 4pi/3) to eliminiate aliasing and calculate phases
     % 3. Calculate Phases at each coordinate (phi(x,y)):
