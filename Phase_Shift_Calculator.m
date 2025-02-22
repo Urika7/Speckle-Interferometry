@@ -7,7 +7,11 @@
     % 3. Plot intensity plot for IP
     % 4. Repeat steps 1-3 for 2nd image (using same coordinates of the original line)
     % 5. Validate data - make sure phase shifting has not altered IP frequency too much
-    % 6. Compare the two sinusoid plots to give phase shift
+    % 6. Display sinusoid intensity graph to user. They must decide if the
+    % line they picked accurately depicts their interference pattern -
+    % specifically if there is an extra peak at the start that will ruin
+    % the sync between the two sinusoids
+    % 7. Compare the two sinusoid plots to give phase shift
 
 %Libraries Needed:
     % 1. Image Processing Toolbox
@@ -35,6 +39,8 @@ FREQ_PEAK_PROMINENCE_MIN = 2e3; %Used in data validation to find relevant peaks
 FREQ_DATA_ERROR_MARGIN = 1e-5; % Percent acceptable error in data (specifically in changes in frequency whilst phase shifting)
 
 PHASE_PEAK_PROMINENCE_MIN = 15; %Used to find peaks in sinusoid of IP intensity (for phase shift measuring)
+
+PEAK_DIFF_TOLERANCE = 0.3; %How different two peaks can be in magnitude before they are considered to correspond to a different phase (used to determine if peak has been truncated)
 
 %% Importing Image
 
@@ -81,42 +87,11 @@ for k = 1:size(locs1,1)
     end
 end
 
-
-%% Calculate Phase Shift
-% Find peaks in each IP intensity sinusoid
-[pks_IP1, loc_pks_IP1] = findpeaks(IP1_Intensity,'MinPeakProminence',PHASE_PEAK_PROMINENCE_MIN);
-[pks_IP2, loc_pks_IP2] = findpeaks(IP2_Intensity,'MinPeakProminence',PHASE_PEAK_PROMINENCE_MIN);
-
-% Make loc_pks_IP1 and loc_pks_IP2 the same size
-if(size(loc_pks_IP1,1) > size(loc_pks_IP2,1))
-    loc_pks_IP1 = loc_pks_IP1(1:size(pks_IP2,1), :);
-else
-    loc_pks_IP2 = loc_pks_IP2(1:size(pks_IP1,1), :);
-end
-
-%Find average distance between corresponding peaks of IP1 and IP2
-Peak_distances = zeros(size(loc_pks_IP1,1), 1); %Array of distances between peaks
-for j = 1:size(loc_pks_IP1,1)
-    Peak_distances(j) = abs(loc_pks_IP1(j) - loc_pks_IP2(j));
-end
-
-% Remove outliers and calculate average phase shift
-avg_phase_shift_unscaled = mean(rmoutliers(Peak_distances))
-
-% Find average period of IP1 (should be simliar to that of IP2 if data is validated)
-IP1_periods = zeros(size(loc_pks_IP1,1) - 1, 1);%Array of measured periods of IP1
-for k = 1:((size(loc_pks_IP1,1) - 1))
-    IP1_periods(k) = loc_pks_IP1(k+1) - loc_pks_IP1(k);
-end
-
-% Remove outliers and calculate average period
-avg_period = mean(rmoutliers(IP1_periods))
-
-%Calculate phase shift with reference to period
-scaled_phase_shift = avg_phase_shift_unscaled/avg_period;
-
-%% Display Results
-%Plot intensity of each IP together to show phase shift
+%% User checks if captured sinusoids is indeed the pattern they want to analyse
+%Show User possible error with their peak graph
+imshow("BAD Extra peak.png")
+%Plot intensity of each IP together to show phase shift for user to verify
+%if this is the pattern they want to analyse
 figure
 hold on
 plot(IP1_Intensity);
@@ -127,7 +102,41 @@ ylabel("Intensity");
 legend("First Pattern Sinusoid", "Second Pattern Sinusoid (Phase-Shifted)")
 hold off
 
+%% Calculate Phase Shift
+% Find peaks in each IP intensity sinusoid
+[pks_IP1, loc_pks_IP1] = findpeaks(IP1_Intensity,'MinPeakProminence',PHASE_PEAK_PROMINENCE_MIN);
+[pks_IP2, loc_pks_IP2] = findpeaks(IP2_Intensity,'MinPeakProminence',PHASE_PEAK_PROMINENCE_MIN);
 
+% Make loc_pks_IP1 and loc_pks_IP2 the same size (truncate from the end)
+if(size(loc_pks_IP1,1) > size(loc_pks_IP2,1))
+    loc_pks_IP1 = loc_pks_IP1(1:size(loc_pks_IP2,1), :);
+else
+    loc_pks_IP2 = loc_pks_IP2(1:size(loc_pks_IP1,1), :);
+end
+
+% Find average period of IP1 (should be simliar to that of IP2 if data is validated)
+IP1_periods = zeros(size(loc_pks_IP1,1) - 1, 1);%Array of measured periods of IP1
+for k = 1:((size(loc_pks_IP1,1) - 1))
+    IP1_periods(k) = loc_pks_IP1(k+1) - loc_pks_IP1(k);
+end
+
+% Remove outliers and calculate average period
+avg_period = mean(rmoutliers(IP1_periods));
+
+% Find average distance between corresponding peaks of IP1 and IP2
+Peak_distances = zeros(size(loc_pks_IP1,1), 1); %Array of distances between peaks
+for j = 1:size(loc_pks_IP1,1)
+    Peak_distances(j) = abs(loc_pks_IP1(j) - loc_pks_IP2(j));
+end
+
+% Remove outliers and calculate average phase shift
+avg_phase_shift_unscaled = mean(rmoutliers(Peak_distances));
+
+
+%Calculate phase shift with reference to period
+scaled_phase_shift = avg_phase_shift_unscaled/avg_period;
+
+%% Display Results
 %Take Fourier Transform to show phase shift did not impact frequency (OPTIONAL)
 figure
 hold on
