@@ -11,7 +11,9 @@
     % line they picked accurately depicts their interference pattern -
     % specifically if there is an extra peak at the start that will ruin
     % the sync between the two sinusoids
-    % 7. Compare the two sinusoid plots to give phase shift
+    % 7. Compare the two sinusoid plots to give phase shift (for best
+    % results, user should also take multiple measurements and look closely
+    % at the phase shift plot)
 
 %Libraries Needed:
     % 1. Image Processing Toolbox
@@ -48,8 +50,8 @@ PEAK_DIFF_TOLERANCE = 0.3; %How different two peaks can be in magnitude before t
 Img_Sample_IP_Array = zeros(IMG_PIX_WIDTH, IMG_PIX_HEIGHT, IMG_PIX_DEPTH, NUM_IMAGES);%For 2 phase shifted IP images
 
 %Read in all images into arrays
-Img_Sample_IP_Array(:,:,:,1) = imread("F Sample (shift = 0) (pol=45°) (No Speckle) (500us, 0.5OD)_45°.tiff"); 
-Img_Sample_IP_Array(:,:,:,2) = imread("F Sample (shift = 2pi_3) (pol=45°) (No Speckle) (500us, 0.5OD)_45°.tiff"); 
+Img_Sample_IP_Array(:,:,:,1) = imread("0 shift_45°.jpg"); 
+Img_Sample_IP_Array(:,:,:,2) = imread("2pi shift_45°.jpg"); 
 
 
 %% Extract Intensity plot 
@@ -121,7 +123,7 @@ for k = 1:((size(loc_pks_IP1,1) - 1))
 end
 
 % Remove outliers and calculate average period
-avg_period = mean(rmoutliers(IP1_periods));
+avg_period = mean(rmoutliers(IP1_periods))
 
 % Find average distance between corresponding peaks of IP1 and IP2
 Peak_distances = zeros(size(loc_pks_IP1,1), 1); %Array of distances between peaks
